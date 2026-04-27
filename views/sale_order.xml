@@ -1,0 +1,60 @@
+<odoo>
+  <record id="view_sale_order_form_inherit_approval" model="ir.ui.view">
+    <field name="name">sale.order.approval</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_order_form"/>
+
+    <field name="arch" type="xml">
+
+      <!-- Inject approval_required field and status bar into header -->
+      <xpath expr="//header" position="inside">
+        <field name="approval_required" invisible="1"/>
+        <field name="approval_state" widget="statusbar"
+               statusbar_visible="draft,manager,director,approved"
+               invisible="not approval_required"/>
+      </xpath>
+
+      <!-- Approval Workflow Buttons -->
+      <xpath expr="//header" position="inside">
+
+        <!-- Submit for Approval: visible for salesperson when order needs approval -->
+        <button name="action_submit_approval"
+                string="Submit for Approval"
+                type="object"
+                class="btn-primary"
+                invisible="not approval_required or approval_state != 'draft' or state != 'draft'"/>
+
+        <!-- Manager Approve: visible only to Manager group during manager stage -->
+        <button name="action_manager_approve"
+                string="Manager Approve"
+                type="object"
+                class="btn-primary"
+                invisible="approval_state != 'manager'"
+                groups="Sale_Order_Approval.group_sale_order_manager"/>
+
+        <!-- Director Approve: visible only to Director group during director stage -->
+        <button name="action_director_approve"
+                string="Director Approve"
+                type="object"
+                class="btn-primary"
+                invisible="approval_state != 'director'"
+                groups="Sale_Order_Approval.group_sale_order_director"/>
+
+        <!-- Reject: visible to Manager/Director during approval stages -->
+        <button name="action_reject"
+                string="Reject"
+                type="object"
+                class="btn-danger"
+                invisible="approval_state not in ['manager', 'director']"
+                groups="Sale_Order_Approval.group_sale_order_manager"/>
+
+      </xpath>
+
+      <!-- Hide standard Confirm button until approved -->
+      <xpath expr="//button[@name='action_confirm'][1]" position="attributes">
+        <attribute name="invisible">approval_required and approval_state != 'approved'</attribute>
+      </xpath>
+
+    </field>
+  </record>
+</odoo>
