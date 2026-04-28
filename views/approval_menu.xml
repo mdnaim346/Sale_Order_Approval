@@ -1,0 +1,125 @@
+<odoo>
+    <record id="action_sale_order_approval_pending" model="ir.actions.act_window">
+        <field name="name">Pending Approvals</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,form,activity</field>
+        <field name="search_view_id" ref="sale.sale_order_view_search_inherit_quotation"/>
+        <field name="domain">[('approval_state', 'in', ['manager', 'director'])]</field>
+        <field name="context">{'search_default_group_approval_state': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No sale orders are waiting for approval.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_sale_order_approval_all" model="ir.actions.act_window">
+        <field name="name">All Approval Orders</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,form,activity</field>
+        <field name="search_view_id" ref="sale.sale_order_view_search_inherit_quotation"/>
+        <field name="domain">[('approval_required', '=', True)]</field>
+        <field name="context">{'search_default_group_approval_state': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No sale orders currently require approval.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_sale_order_approval_approved" model="ir.actions.act_window">
+        <field name="name">Approved Orders</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,form,activity</field>
+        <field name="search_view_id" ref="sale.sale_order_view_search_inherit_quotation"/>
+        <field name="domain">[('approval_required', '=', True), ('approval_state', '=', 'approved')]</field>
+    </record>
+
+    <record id="action_sale_order_approval_rejected" model="ir.actions.act_window">
+        <field name="name">Rejected Orders</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">tree,form,activity</field>
+        <field name="search_view_id" ref="sale.sale_order_view_search_inherit_quotation"/>
+        <field name="domain">[('approval_state', '=', 'rejected')]</field>
+    </record>
+
+    <record id="view_sale_order_tree_approval" model="ir.ui.view">
+        <field name="name">sale.order.tree.approval</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.sale_order_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="decoration-warning">approval_state in ['manager', 'director']</attribute>
+                <attribute name="decoration-success">approval_state == 'approved'</attribute>
+                <attribute name="decoration-danger">approval_state == 'rejected'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='amount_total']" position="after">
+                <field name="approval_required" string="Needs Approval" optional="hide"/>
+                <field name="approval_state"
+                       string="Approval"
+                       widget="badge"
+                       decoration-warning="approval_state in ['manager', 'director']"
+                       decoration-success="approval_state == 'approved'"
+                       decoration-danger="approval_state == 'rejected'"
+                       optional="show"/>
+                <field name="manager_id" string="Manager" widget="many2one_avatar_user" optional="hide"/>
+                <field name="director_id" string="Director" widget="many2one_avatar_user" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_sale_order_search_approval" model="ir.ui.view">
+        <field name="name">sale.order.search.approval</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search/group" position="before">
+                <separator/>
+                <filter string="Needs Approval" name="approval_required" domain="[('approval_required', '=', True)]"/>
+                <filter string="Awaiting Manager" name="approval_manager" domain="[('approval_state', '=', 'manager')]"/>
+                <filter string="Awaiting Director" name="approval_director" domain="[('approval_state', '=', 'director')]"/>
+                <filter string="Approved" name="approval_approved" domain="[('approval_state', '=', 'approved')]"/>
+                <filter string="Rejected" name="approval_rejected" domain="[('approval_state', '=', 'rejected')]"/>
+                <separator/>
+            </xpath>
+            <xpath expr="//search/group" position="inside">
+                <filter string="Approval Status" name="group_approval_state" context="{'group_by': 'approval_state'}"/>
+                <filter string="Manager Approver" name="group_manager_approver" context="{'group_by': 'manager_id'}"/>
+                <filter string="Director Approver" name="group_director_approver" context="{'group_by': 'director_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <menuitem id="menu_sale_approval_root"
+              name="Approvals"
+              sequence="25"
+              groups="Sale_Order_Approval.group_sale_order_manager"/>
+
+    <menuitem id="menu_sale_approval_pending"
+              name="Pending Approvals"
+              parent="menu_sale_approval_root"
+              action="action_sale_order_approval_pending"
+              sequence="10"
+              groups="Sale_Order_Approval.group_sale_order_manager"/>
+
+    <menuitem id="menu_sale_approval_all"
+              name="All Approval Orders"
+              parent="menu_sale_approval_root"
+              action="action_sale_order_approval_all"
+              sequence="20"
+              groups="Sale_Order_Approval.group_sale_order_manager"/>
+
+    <menuitem id="menu_sale_approval_approved"
+              name="Approved"
+              parent="menu_sale_approval_root"
+              action="action_sale_order_approval_approved"
+              sequence="30"
+              groups="Sale_Order_Approval.group_sale_order_manager"/>
+
+    <menuitem id="menu_sale_approval_rejected"
+              name="Rejected"
+              parent="menu_sale_approval_root"
+              action="action_sale_order_approval_rejected"
+              sequence="40"
+              groups="Sale_Order_Approval.group_sale_order_manager"/>
+</odoo>

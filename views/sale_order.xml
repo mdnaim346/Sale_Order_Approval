@@ -21,14 +21,14 @@
         <button name="action_submit_approval"
                 string="Submit for Approval"
                 type="object"
-                class="btn-primary"
+                class="btn-primary btn-approval-submit"
                 invisible="not approval_required or approval_state != 'draft' or state != 'draft'"/>
 
         <!-- Manager Approve: visible only to Manager group during manager stage -->
         <button name="action_manager_approve"
                 string="Manager Approve"
                 type="object"
-                class="btn-primary"
+                class="btn-success"
                 invisible="approval_state != 'manager'"
                 groups="Sale_Order_Approval.group_sale_order_manager"/>
 
@@ -36,23 +36,45 @@
         <button name="action_director_approve"
                 string="Director Approve"
                 type="object"
-                class="btn-primary"
+                class="btn-success"
                 invisible="approval_state != 'director'"
                 groups="Sale_Order_Approval.group_sale_order_director"/>
 
         <!-- Reject: visible to Manager/Director during approval stages -->
-        <button name="action_reject"
+        <button name="action_open_reject_wizard"
                 string="Reject"
                 type="object"
                 class="btn-danger"
                 invisible="approval_state not in ['manager', 'director']"
                 groups="Sale_Order_Approval.group_sale_order_manager"/>
 
+        <button name="action_reset_to_draft"
+                string="Reset to Draft"
+                type="object"
+                class="btn-secondary"
+                invisible="approval_state != 'rejected'"/>
+
       </xpath>
 
       <!-- Hide standard Confirm button until approved -->
       <xpath expr="//button[@name='action_confirm'][1]" position="attributes">
         <attribute name="invisible">approval_required and approval_state != 'approved'</attribute>
+      </xpath>
+
+      <xpath expr="//notebook" position="after">
+        <div class="alert alert-danger mt-3" role="alert" invisible="approval_state != 'rejected'">
+          <strong>Rejected</strong>
+          <div>
+            <span>Rejected by </span>
+            <field name="rejected_by_id" readonly="1" class="oe_inline"/>
+            <span> on </span>
+            <field name="rejection_date" readonly="1" class="oe_inline"/>
+          </div>
+          <div class="mt-2">
+            <strong>Reason:</strong>
+            <field name="rejection_reason" readonly="1" nolabel="1"/>
+          </div>
+        </div>
       </xpath>
 
     </field>

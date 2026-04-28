@@ -1,0 +1,24 @@
+<odoo>
+    <record id="view_sale_order_reject_wizard_form" model="ir.ui.view">
+        <field name="name">sale.order.reject.wizard.form</field>
+        <field name="model">sale.order.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Sale Order">
+                <group>
+                    <field name="order_id"/>
+                    <field name="reason"
+                           placeholder="Explain why this sale order is being rejected."/>
+                </group>
+                <footer>
+                    <button name="action_confirm_rejection"
+                            string="Reject"
+                            type="object"
+                            class="btn-danger"/>
+                    <button string="Cancel"
+                            special="cancel"
+                            class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
